@@ -1,0 +1,6 @@
+{
+  "name": "Academy of Computer Learning",
+  "description": "Premium official portal for the Academy of Computer Learning, Colonelganj, Gonda, Uttar Pradesh, featuring course details, online admission, student and admin dashboards, online mock test system, certificate verification, notice board, and placement records.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
