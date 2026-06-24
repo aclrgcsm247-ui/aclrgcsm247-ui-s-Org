@@ -23,8 +23,8 @@ export default function PageAbout({ lang, darkMode }: PageAboutProps) {
           </h2>
           <p className="text-xs md:text-sm text-gray-500 leading-relaxed font-sans">
             {lang === 'en'
-              ? 'Founded with a solid vision to bring premium, ISO-certified high-end computer training to Gonda & Colonelganj district. We support both Hindi & English instruction models.'
-              : 'कर्नलगंज, गोंडा में उच्च गुणवत्ता वाली, आईएसओ-सीटीयू कंप्यूटर विज्ञान शिक्षा प्रदान करने के लिए स्थापित अग्रणी संस्थान। हम हिंदी और अंग्रेजी दोनों माध्यमों में शिक्षा प्रदान करते हैं।'}
+              ? 'Founded with a solid vision to bring premium, ISO-certified high-end computer training to Colonelganj, Gonda district. We support both Hindi & English instruction models.'
+              : 'कर्नलगंज (गोंडा) में उच्च गुणवत्ता वाली, आईएसओ-प्रमाणित कंप्यूटर विज्ञान शिक्षा प्रदान करने के लिए स्थापित अग्रणी संस्थान। हम हिंदी और अंग्रेजी दोनों माध्यमों में शिक्षा प्रदान करते हैं।'}
           </p>
         </div>
 
@@ -42,7 +42,7 @@ export default function PageAbout({ lang, darkMode }: PageAboutProps) {
             {/* Overlay tag */}
             <div className="absolute bottom-4 left-4 right-4 z-20 bg-slate-950/85 backdrop-blur border border-white/10 p-4 rounded-sm text-white">
               <p className="font-bold text-sm tracking-tight text-orange-400">Er. Ramesh Chandra Shukla</p>
-              <p className="text-[10px] text-gray-400 font-mono">Founder & Executive Director • M.Tech, MCA</p>
+              <p className="text-[10px] text-gray-400 font-mono">Founder & Executive Director</p>
             </div>
           </div>
 
@@ -58,8 +58,8 @@ export default function PageAbout({ lang, darkMode }: PageAboutProps) {
             
             <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 leading-relaxed font-sans">
               {lang === 'en'
-                ? "Dear Students and Guardians, since our inception high up in Colonelganj, Gonda, we have pledged to make computer literacy affordable, practical, and highly synchronized with industry demands. We understand that certificates are useless if not backed by functional skills. Hence, our lab is loaded with state-of-the-art computers, smart projectors, and live routers."
-                : "प्रिय छात्रों और अभिभावकों, कर्नलगंज, गोंडा में अपनी स्थापना के बाद से, हमने कंप्यूटर साक्षरता को वहनीय, व्यावहारिक और उद्योग की मांगों के साथ अत्यधिक तालमेल बिठाने का संकल्प लिया है। हम समझते हैं कि यदि प्रमाण पत्र व्यावहारिक कौशल द्वारा समर्थित नहीं हैं तो वे बेकार हैं।"}
+                ? "Dear Students and Guardians, since our inception in Colonelganj, Gonda, we have pledged to make computer literacy affordable, practical, and highly synchronized with industry demands. We understand that certificates are useless if not backed by functional skills. Hence, our lab is loaded with state-of-the-art computers, smart projectors, and live routers."
+                : "प्रिय छात्रों और अभिभावकों, कर्नलगंज (गोंडा) में अपनी स्थापना के बाद से, हमने कंप्यूटर साक्षरता को वहनीय, व्यावहारिक और उद्योग की मांगों के साथ अत्यधिक तालमेल बिठाने का संकल्प लिया है। हम समझते हैं कि यदि प्रमाण पत्र व्यावहारिक कौशल द्वारा समर्थित नहीं हैं तो वे बेकार हैं।"}
             </p>
             
             <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 leading-relaxed font-sans mt-2">
@@ -70,7 +70,7 @@ export default function PageAbout({ lang, darkMode }: PageAboutProps) {
 
             <div className="flex items-center space-x-2 text-xs font-semibold font-mono text-orange-500 pt-2">
               <span>Warm Regards,</span>
-              <span className="bg-orange-500/10 px-2 py-1 rounded-sm">Directorate Desk, ACL Gonda</span>
+              <span className="bg-orange-500/10 px-2 py-1 rounded-sm">Directorate Desk, ACL Colonelganj</span>
             </div>
           </div>
         </div>
@@ -89,8 +89,8 @@ export default function PageAbout({ lang, darkMode }: PageAboutProps) {
             </h4>
             <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
               {lang === 'en'
-                ? "To bridge the rural-urban digital literacy gap in Gonda region by creating an ecosystem where every student qualifies for state and software jobs through deep computer proficiency and certifications."
-                : "गोंडा जिले कर्नलगंज क्षेत्र में ग्रामीण-शहरी डिजिटल विभाजन को पाटना। हम एक ऐसा पारिस्थितिकी तंत्र तैयार करना चाहते हैं जहां प्रत्येक छात्र उत्कृष्ट कंप्यूटर दक्षता और प्रामाणिक प्रमाण पत्रों के माध्यम से राज्यीय और राष्ट्रीय नौकरियों के लिए योग्य बन सके।"}
+                ? "To bridge the rural-urban digital literacy gap in Colonelganj, Gonda region by creating an ecosystem where every student qualifies for state and software jobs through deep computer proficiency and certifications."
+                : "गोंडा जिले में ग्रामीण-शहरी डिजिटल विभाजन को पाटना। हम एक ऐसा पारिस्थितिकी तंत्र तैयार करना चाहते हैं जहां प्रत्येक छात्र उत्कृष्ट कंप्यूटर दक्षता और प्रामाणिक प्रमाण पत्रों के माध्यम से राज्यीय और राष्ट्रीय नौकरियों के लिए योग्य बन सके।"}
             </p>
           </div>
 

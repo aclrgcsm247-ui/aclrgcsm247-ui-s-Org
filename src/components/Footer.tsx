@@ -106,11 +106,11 @@ export default function Footer({ setCurrentPage, lang, darkMode, courses }: Foot
           <div className="space-y-2 text-xs">
             <span className="flex items-start space-x-2 text-slate-400 leading-normal">
               <MapPin className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-              <span>Kotwali Tiraha, Lucknow Gonda Highway, Colonelganj, Gonda, UP - 271521</span>
+              <span>Kotwali Tiraha, Lucknow Gonda Highway, Colonelganj, Gonda, Uttar Pradesh - 271502</span>
             </span>
             <span className="flex items-center space-x-2 text-slate-400">
               <PhoneCall className="w-4 h-4 text-orange-500 shrink-0" />
-              <span>+91 99186 66000, 93699 17174</span>
+              <span>+91 99186 66000</span>
             </span>
             <span className="flex items-center space-x-2 text-slate-400">
               <Mail className="w-4 h-4 text-orange-500 shrink-0" />

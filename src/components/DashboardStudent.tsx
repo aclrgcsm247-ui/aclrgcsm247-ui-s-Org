@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Student, Course, Result, Notice, StudyNote, VideoLecture } from '../types';
+import { Student, Course, Result, Notice, StudyNote, VideoLecture, AttendanceRecord } from '../types';
 import { TRANSLATIONS } from '../data';
 import { 
   Award, 
@@ -37,6 +37,7 @@ interface DashboardStudentProps {
   onUpdateStudent: (id: string, updatedFields: Partial<Student>) => void;
   notes?: StudyNote[];
   videos?: VideoLecture[];
+  attendanceRecords?: AttendanceRecord[];
 }
 
 export default function DashboardStudent({
@@ -51,7 +52,8 @@ export default function DashboardStudent({
   onLogout,
   onUpdateStudent,
   notes = [],
-  videos = []
+  videos = [],
+  attendanceRecords = []
 }: DashboardStudentProps) {
   const t = TRANSLATIONS[lang];
 
@@ -66,6 +68,7 @@ export default function DashboardStudent({
   const [editAddress, setEditAddress] = useState('');
   const [editEmail, setEditEmail] = useState('');
   const [editPhoto, setEditPhoto] = useState('');
+  const [editMarksheetPhoto, setEditMarksheetPhoto] = useState('');
   const [dragActive, setDragActive] = useState(false);
 
   // Sync edits if loggedInStudent state updates
@@ -75,6 +78,7 @@ export default function DashboardStudent({
       setEditAddress(loggedInStudent.address || '');
       setEditEmail(loggedInStudent.email || '');
       setEditPhoto(loggedInStudent.passportPhoto || '');
+      setEditMarksheetPhoto(loggedInStudent.marksheetPhoto || '');
     }
   }, [loggedInStudent]);
 
@@ -115,6 +119,22 @@ export default function DashboardStudent({
     e.preventDefault();
     if (e.target.files && e.target.files[0]) {
       processFile(e.target.files[0]);
+    }
+  };
+
+  const handleMarksheetFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          if (event.target?.result) {
+            setEditMarksheetPhoto(event.target.result as string);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -169,6 +189,7 @@ export default function DashboardStudent({
       setEditAddress(match.address || '');
       setEditEmail(match.email || '');
       setEditPhoto(match.passportPhoto || '');
+      setEditMarksheetPhoto(match.marksheetPhoto || '');
     } else {
       setLoginError(true);
     }
@@ -182,7 +203,8 @@ export default function DashboardStudent({
       dob: editDob,
       address: editAddress,
       email: editEmail,
-      passportPhoto: editPhoto
+      passportPhoto: editPhoto,
+      marksheetPhoto: editMarksheetPhoto
     });
     alert('Student profile coordinates updated successfully!');
     setShowEditProfile(false);
@@ -508,7 +530,57 @@ export default function DashboardStudent({
                   />
                 </div>
 
-                <div className="flex gap-2.5">
+                <div className="space-y-2 border-t border-gray-400/10 pt-4 text-left">
+                  <label className="text-slate-500 font-bold uppercase tracking-wider text-[10px] block">
+                    {lang === 'en' ? 'Verified Marksheet Photo / Document' : 'सत्यापित मार्कशीट फोटो / दस्तावेज़'}
+                  </label>
+                  <div className="flex flex-col sm:flex-row items-center gap-4 bg-blue-900/5 dark:bg-slate-900/40 p-4 rounded-xl border border-gray-400/10">
+                    {editMarksheetPhoto ? (
+                      editMarksheetPhoto.startsWith('data:image/') || editMarksheetPhoto.startsWith('http') || editMarksheetPhoto.startsWith('blob:') ? (
+                        <img 
+                          src={editMarksheetPhoto} 
+                          alt="Marksheet Preview" 
+                          className="w-16 h-16 object-cover rounded-lg border border-orange-500/30" 
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 flex items-center justify-center bg-sky-500/10 text-sky-500 rounded-lg border border-sky-500/20 font-bold text-[10px] uppercase font-mono text-center leading-none p-1">
+                          PDF / Document
+                        </div>
+                      )
+                    ) : (
+                      <div className="w-16 h-16 flex items-center justify-center bg-gray-500/10 text-gray-400 rounded-lg border border-dashed border-gray-400/20 text-[10px] text-center">
+                        No File
+                      </div>
+                    )}
+                    <div className="flex-1 w-full space-y-2 text-left">
+                      <div className="flex items-center gap-2">
+                        <label className="cursor-pointer bg-sky-600 hover:bg-sky-700 text-white py-1.5 px-3 rounded-lg text-[11px] font-bold flex items-center space-x-1">
+                          <UploadCloud className="w-3.5 h-3.5" />
+                          <span>Upload Marksheet</span>
+                          <input 
+                            type="file" 
+                            className="hidden" 
+                            accept="image/*,.pdf"
+                            onChange={handleMarksheetFileChange}
+                          />
+                        </label>
+                        {editMarksheetPhoto && (
+                          <button 
+                            type="button"
+                            onClick={() => setEditMarksheetPhoto('')}
+                            className="px-2.5 py-1.5 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg text-[10px] font-bold"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-[9px] text-gray-400">Attach secondary / high school marksheets for permanent office files.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-2.5 pt-2">
                   <button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-bold">
                     Save Structural Changes
                   </button>
@@ -780,6 +852,108 @@ export default function DashboardStudent({
 
                   {/* Right Column: Completed Mock Records */}
                   <div className="lg:col-span-5 space-y-6">
+                    {/* Academic Dossier */}
+                    <div className={`p-6 rounded-2xl border text-left ${
+                      darkMode ? 'bg-slate-950 border-slate-900' : 'bg-white border-slate-200 shadow-sm'
+                    }`}>
+                      <h3 className="font-display font-bold text-sm text-blue-900 dark:text-blue-400 border-b border-gray-400/10 pb-3 mb-4 flex items-center gap-1.5">
+                        <Award className="w-4 h-4 text-orange-500" />
+                        <span>Academic Dossier</span>
+                      </h3>
+                      <div className="space-y-3 text-xs">
+                        <div className="flex justify-between items-center py-1.5 border-b border-gray-400/5">
+                          <span className="text-gray-400">Father's Name</span>
+                          <span className="font-semibold text-slate-700 dark:text-slate-300">{loggedInStudent.fatherName}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-1.5 border-b border-gray-400/5">
+                          <span className="text-gray-400">Date of Birth</span>
+                          <span className="font-semibold text-slate-700 dark:text-slate-300">{loggedInStudent.dob || 'Not set'}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-1.5 border-b border-gray-400/5">
+                          <span className="text-gray-400">WhatsApp Mobile</span>
+                          <span className="font-semibold text-slate-700 dark:text-slate-300">{loggedInStudent.mobileNumber}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-1.5 border-b border-gray-400/5">
+                          <span className="text-gray-400">Email Address</span>
+                          <span className="font-semibold text-slate-700 dark:text-slate-300">{loggedInStudent.email}</span>
+                        </div>
+                        <div className="py-1.5 border-b border-gray-400/5 space-y-1">
+                          <span className="text-gray-400 block">Surbuban Address</span>
+                          <span className="font-medium text-slate-600 dark:text-slate-400 block">{loggedInStudent.address || 'No address added'}</span>
+                        </div>
+                        
+                        {/* Documents Attached */}
+                        <div className="pt-2 space-y-2">
+                          <p className="font-mono text-[9px] text-gray-400 uppercase tracking-wider font-bold">Verified Enclosures</p>
+                          <div className="grid grid-cols-2 gap-2">
+                            {loggedInStudent.marksheetPhoto && loggedInStudent.marksheetPhoto !== 'Marksheet_Not_Uploaded.png' ? (
+                              <a 
+                                href={loggedInStudent.marksheetPhoto} 
+                                target="_blank" 
+                                rel="noreferrer"
+                                className="p-2 bg-sky-500/5 border border-sky-500/10 hover:border-sky-500/30 rounded-lg text-center font-bold text-sky-500 hover:text-sky-400 transition-colors block text-[10px]"
+                              >
+                                View Marksheet
+                              </a>
+                            ) : (
+                              <div className="p-2 bg-gray-500/5 border border-gray-500/10 rounded-lg text-center text-gray-400 text-[10px]" title="No academic marksheet uploaded yet">
+                                No Marksheet
+                              </div>
+                            )}
+                            <div className="p-2 bg-orange-500/5 border border-orange-500/10 rounded-lg text-center font-bold text-orange-500 text-[10px] truncate" title={loggedInStudent.aadhaarCard}>
+                              Aadhaar: Attached
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Detailed Daily Attendance Log */}
+                    {(() => {
+                      const myAttendance = attendanceRecords
+                        .filter(r => r.studentId === loggedInStudent.id)
+                        .sort((a, b) => b.date.localeCompare(a.date));
+
+                      return (
+                        <div className={`p-6 rounded-2xl border text-left ${
+                          darkMode ? 'bg-slate-950 border-slate-900' : 'bg-white border-slate-200 shadow-sm'
+                        }`}>
+                          <h3 className="font-display font-bold text-sm text-blue-900 dark:text-blue-400 border-b border-gray-400/10 pb-3 mb-4 flex items-center justify-between">
+                            <span className="flex items-center gap-1.5">
+                              <Calendar className="w-4 h-4 text-orange-500" />
+                              <span>{lang === 'en' ? 'Detailed Attendance Logs' : 'दैनिक उपस्थिति इतिहास'}</span>
+                            </span>
+                            <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded ${
+                              loggedInStudent.attendancePercentage >= 75 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'
+                            }`}>
+                              {loggedInStudent.attendancePercentage}%
+                            </span>
+                          </h3>
+
+                          {myAttendance.length === 0 ? (
+                            <div className="p-4 text-center text-gray-500 text-xs italic">
+                              {lang === 'en' ? 'No attendance records registered yet.' : 'कोई उपस्थिति रिकॉर्ड अभी दर्ज नहीं है।'}
+                            </div>
+                          ) : (
+                            <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1">
+                              {myAttendance.map(rec => (
+                                <div key={rec.id} className="flex justify-between items-center py-1.5 border-b border-gray-400/5 text-xs">
+                                  <span className="font-mono font-bold text-slate-600 dark:text-slate-400">{rec.date}</span>
+                                  <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold uppercase font-mono tracking-wider ${
+                                    rec.status === 'present'
+                                      ? 'bg-green-500/10 text-green-500'
+                                      : 'bg-red-500/10 text-red-500'
+                                  }`}>
+                                    {rec.status === 'present' ? (lang === 'en' ? 'Present' : 'उपस्थित') : (lang === 'en' ? 'Absent' : 'अनुपस्थित')}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
+
                     <div className={`p-6 rounded-2xl border ${
                       darkMode ? 'bg-slate-950 border-slate-900' : 'bg-white border-slate-200 shadow-sm'
                     }`}>

@@ -48,6 +48,7 @@ export interface Student {
   courseId: string;
   passportPhoto: string; // Base64 or placeholder URL
   aadhaarCard: string; // Base64 or registration ID
+  marksheetPhoto?: string; // Base64 or uploaded file name
   admissionDate: string;
   admissionStatus: 'pending' | 'approved' | 'rejected';
   attendancePercentage: number;
@@ -185,5 +186,13 @@ export interface VideoLecture {
   instructor: string;
   videoUrl: string; // simulated or embed URL
   createdAt: string;
+}
+
+export interface AttendanceRecord {
+  id: string;
+  studentId: string;
+  studentName: string;
+  date: string; // YYYY-MM-DD
+  status: 'present' | 'absent';
 }
 

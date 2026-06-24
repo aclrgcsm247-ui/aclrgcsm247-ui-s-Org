@@ -283,8 +283,8 @@ export const INITIAL_NOTICES: Notice[] = [
     title: "Upcoming Campus Placement Drive: Web Creators Gonda Division",
     titleHindi: "आगामी कैंपस प्लेसमेंट ड्राइव: वेब क्रिएटर्स गोंडा डिवीजन",
     category: "job",
-    description: "Web Creators Pvt Ltd is visiting Academy of Computer Learning, Colonelganj branch for recruiting Junior Web Designers & Tally Accountants on July 5, 2226. Eligibility: O-Level / Web-Dev / Tally certified with minimum 60% grades. Registrations open on online portal.",
-    descriptionHindi: "वेब क्रिएटर्स प्राइवेट लिमिटेड 5 जुलाई, 2026 को जूनियर वेब डिजाइनर और टैली अकाउंटेंट की भर्ती के लिए कर्नलगंज शाखा में एकेडमी ऑफ कंप्यूटर लर्निंग का दौरा कर रहे हैं। पात्रता: न्यूनतम 60% अंकों के साथ ओ-लेवल / वेब-देव / टैली प्रमाणित। ऑनलाइन पोर्टल पर पंजीकरण खुले हैं।",
+    description: "Web Creators Pvt Ltd is visiting Academy of Computer Learning, Colonelganj, Gonda branch for recruiting Junior Web Designers & Tally Accountants on July 5, 2026. Eligibility: O-Level / Web-Dev / Tally certified with minimum 60% grades. Registrations open on online portal.",
+    descriptionHindi: "वेब क्रिएटर्स प्राइवेट लिमिटेड 5 जुलाई, 2026 को जूनियर वेब डिजाइनर और टैली अकाउंटेंट की भर्ती के लिए कर्नलगंज, गोंडा शाखा में एकेडमी ऑफ कंप्यूटर लर्निंग का दौरा कर रहे हैं। पात्रता: न्यूनतम 60% अंकों के साथ ओ-लेवल / वेब-देव / टैली प्रमाणित। ऑनलाइन पोर्टल पर पंजीकरण खुले हैं।",
     date: "2026-06-10",
     active: true
   }
@@ -406,6 +406,7 @@ export const INITIAL_STUDENTS: Student[] = [
     courseId: "o_level",
     passportPhoto: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=300&auto=format&fit=crop&q=80",
     aadhaarCard: "123456789012",
+    marksheetPhoto: "Rohan_Maurya_Marksheet.png",
     admissionDate: "2026-01-10",
     admissionStatus: "approved",
     attendancePercentage: 92,
@@ -428,6 +429,7 @@ export const INITIAL_STUDENTS: Student[] = [
     courseId: "adca",
     passportPhoto: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&auto=format&fit=crop&q=80",
     aadhaarCard: "987654321012",
+    marksheetPhoto: "Preeti_Kashyap_Marksheet.png",
     admissionDate: "2026-01-15",
     admissionStatus: "approved",
     attendancePercentage: 98,
@@ -558,7 +560,7 @@ export const TRANSLATIONS = {
     enrollNow: "Enroll Now",
     freeDemo: "Free Demo Class",
     tagline: "Empowering Futures with Elite Digital Competencies",
-    address: "Kotwali Tiraha, Lucknow Gonda Highway, Colonelganj, Gonda, Uttar Pradesh - 271521",
+    address: "Kotwali Tiraha, Lucknow Gonda Highway, Colonelganj, Gonda, Uttar Pradesh - 271502",
     footerText: "Copyright © 2026 Academy of Computer Learning. Authorized ISO 9001:2015 Certified Computer Education Center. Governed by Regional Computer Education Framework.",
     courseDetails: "Course Details",
     duration: "Duration",
@@ -598,7 +600,7 @@ export const TRANSLATIONS = {
     enrollNow: "अभी प्रवेश लें",
     freeDemo: "फ्री डेमो क्लास",
     tagline: "उत्कृष्ट डिजिटल योग्यताओं के साथ भविष्य को सशक्त बनाना",
-    address: "कोतवाली तिराहा, लखनऊ गोंडा हाईवे, कर्नलगंज, गोंडा, उत्तर प्रदेश - 271521",
+    address: "कोतवाली तिराहा, लखनऊ गोंडा हाईवे, कर्नलगंज, गोंडा, उत्तर प्रदेश - 271502",
     footerText: "कॉपीराइट © 2026 अकैडमी ऑफ़ कंप्यूटर लर्निंग। अधिकृत आईएसओ 9001:2015 प्रमाणित कंप्यूटर शिक्षा केंद्र।",
     courseDetails: "पाठ्यक्रम का विवरण",
     duration: "अवधि",
@@ -655,7 +657,7 @@ export const INITIAL_VIDEOS: VideoLecture[] = [
     title: 'Lecture 1: Linux Command lines & Terminal workflows',
     courseId: 'all',
     duration: '15:40 Mins',
-    instructor: 'Ramesh Shukla',
+    instructor: 'Er. Ramesh Chandra Shukla',
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     createdAt: '2026-06-01'
   },
@@ -664,8 +666,30 @@ export const INITIAL_VIDEOS: VideoLecture[] = [
     title: 'Lecture 2: Advanced excel spreadsheets pivot configurations',
     courseId: 'adca',
     duration: '22:15 Mins',
-    instructor: 'Ramesh Shukla',
+    instructor: 'Er. Ramesh Chandra Shukla',
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     createdAt: '2026-06-05'
   }
+];
+
+export const INITIAL_ATTENDANCE = [
+  { id: 'att-1', studentId: 'ACL-2026-1001', studentName: 'Rohan Kumar Maurya', date: '2026-06-15', status: 'present' },
+  { id: 'att-2', studentId: 'ACL-2026-1001', studentName: 'Rohan Kumar Maurya', date: '2026-06-16', status: 'present' },
+  { id: 'att-3', studentId: 'ACL-2026-1001', studentName: 'Rohan Kumar Maurya', date: '2026-06-17', status: 'present' },
+  { id: 'att-4', studentId: 'ACL-2026-1001', studentName: 'Rohan Kumar Maurya', date: '2026-06-18', status: 'present' },
+  { id: 'att-5', studentId: 'ACL-2026-1001', studentName: 'Rohan Kumar Maurya', date: '2026-06-19', status: 'absent' },
+  { id: 'att-6', studentId: 'ACL-2026-1001', studentName: 'Rohan Kumar Maurya', date: '2026-06-20', status: 'present' },
+  { id: 'att-7', studentId: 'ACL-2026-1001', studentName: 'Rohan Kumar Maurya', date: '2026-06-22', status: 'present' },
+  { id: 'att-8', studentId: 'ACL-2026-1001', studentName: 'Rohan Kumar Maurya', date: '2026-06-23', status: 'present' },
+  { id: 'att-9', studentId: 'ACL-2026-1001', studentName: 'Rohan Kumar Maurya', date: '2026-06-24', status: 'present' },
+
+  { id: 'att-10', studentId: 'ACL-2026-1002', studentName: 'Preeti Kashyap', date: '2026-06-15', status: 'present' },
+  { id: 'att-11', studentId: 'ACL-2026-1002', studentName: 'Preeti Kashyap', date: '2026-06-16', status: 'present' },
+  { id: 'att-12', studentId: 'ACL-2026-1002', studentName: 'Preeti Kashyap', date: '2026-06-17', status: 'present' },
+  { id: 'att-13', studentId: 'ACL-2026-1002', studentName: 'Preeti Kashyap', date: '2026-06-18', status: 'present' },
+  { id: 'att-14', studentId: 'ACL-2026-1002', studentName: 'Preeti Kashyap', date: '2026-06-19', status: 'present' },
+  { id: 'att-15', studentId: 'ACL-2026-1002', studentName: 'Preeti Kashyap', date: '2026-06-20', status: 'present' },
+  { id: 'att-16', studentId: 'ACL-2026-1002', studentName: 'Preeti Kashyap', date: '2026-06-22', status: 'present' },
+  { id: 'att-17', studentId: 'ACL-2026-1002', studentName: 'Preeti Kashyap', date: '2026-06-23', status: 'present' },
+  { id: 'att-18', studentId: 'ACL-2026-1002', studentName: 'Preeti Kashyap', date: '2026-06-24', status: 'present' },
 ];

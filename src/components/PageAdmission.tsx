@@ -48,10 +48,12 @@ export default function PageAdmission({
   // Custom mock base64 assets state or string indicators
   const [passportPhoto, setPassportPhoto] = useState<string>('');
   const [aadhaarCard, setAadhaarCard] = useState<string>('');
+  const [marksheetPhoto, setMarksheetPhoto] = useState<string>('');
   
   // File labels
   const [photoLabel, setPhotoLabel] = useState('');
   const [aadhaarLabel, setAadhaarLabel] = useState('');
+  const [marksheetLabel, setMarksheetLabel] = useState('');
 
   // Submission metrics
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -65,13 +67,16 @@ export default function PageAdmission({
   }, [selectedCourseId]);
 
   // Convert files helper
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'photo' | 'aadhaar') => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'photo' | 'aadhaar' | 'marksheet') => {
     const file = e.target.files?.[0];
     if (file) {
       if (type === 'photo') {
         setPhotoLabel(file.name);
         // Fallback placeholder mock URL for preview simplicity
         setPassportPhoto(URL.createObjectURL(file));
+      } else if (type === 'marksheet') {
+        setMarksheetLabel(file.name);
+        setMarksheetPhoto(URL.createObjectURL(file));
       } else {
         setAadhaarLabel(file.name);
         setAadhaarCard(file.name);
@@ -105,6 +110,7 @@ export default function PageAdmission({
       courseId,
       passportPhoto: passportPhoto || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&auto=format&fit=crop&q=80",
       aadhaarCard: aadhaarCard || "Aadhaar_Document_Uploaded.pdf",
+      marksheetPhoto: marksheetPhoto || "Marksheet_Not_Uploaded.png",
       admissionDate: new Date().toISOString().split('T')[0],
       admissionStatus: 'pending', // Pending authorization by default admin panel
       attendancePercentage: 0,
@@ -132,8 +138,10 @@ export default function PageAdmission({
     setAddress('');
     setPassportPhoto('');
     setAadhaarCard('');
+    setMarksheetPhoto('');
     setPhotoLabel('');
     setAadhaarLabel('');
+    setMarksheetLabel('');
     setIsSubmitted(false);
   };
 
@@ -196,6 +204,14 @@ export default function PageAdmission({
                   {courses.find(c => c.id === courseId)?.name}
                 </span>
               </div>
+              {marksheetLabel && (
+                <div className="flex justify-between items-center border-b border-gray-400/10 pb-2">
+                  <span className="text-xs text-gray-400 uppercase font-bold tracking-wider">{lang === 'en' ? 'Marksheet Attached' : 'मार्कशीट संलग्न'}</span>
+                  <span className="text-xs font-bold text-green-500 truncate max-w-[200px]" title={marksheetLabel}>
+                    ✓ {marksheetLabel}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between items-center pt-1 text-xs">
                 <span className="text-gray-400 uppercase font-bold tracking-wider">{lang === 'en' ? 'Default Portal Password' : 'लॉगिन पासवर्ड'}</span>
                 <span className="bg-orange-500/10 text-orange-400 font-mono font-bold px-2 py-0.5 rounded-sm select-all">{mobileNumber}</span>
@@ -398,31 +414,47 @@ export default function PageAdmission({
               </div>
 
               {/* Document upload panels */}
-              <div className="p-4 border rounded-sm border-dashed border-gray-400/20 bg-blue-900/5 dark:bg-slate-900/40 space-y-2">
-                <p className="font-bold text-[11px] uppercase tracking-wider text-slate-500">{lang === 'en' ? "Passport Photo" : "पासपोर्ट फोटो"}</p>
-                <div className="flex items-center space-x-2">
-                  <label className="cursor-pointer bg-orange-500 hover:bg-orange-600 text-white py-1.5 px-3 rounded text-[11px] font-semibold flex items-center space-x-1">
-                    <Upload className="w-3.5 h-3.5" />
-                    <span>Upload File</span>
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileChange(e, 'photo')} />
-                  </label>
-                  <span className="text-[10px] text-gray-400 truncate max-w-[150px]">
-                    {photoLabel || (lang === 'en' ? 'No file selected' : 'कोई फाइल नहीं चुनी')}
-                  </span>
+              <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+                <div className="p-4 border rounded-sm border-dashed border-gray-400/20 bg-blue-900/5 dark:bg-slate-900/40 space-y-2">
+                  <p className="font-bold text-[11px] uppercase tracking-wider text-slate-500">{lang === 'en' ? "Passport Photo" : "पासपोर्ट फोटो"}</p>
+                  <div className="flex flex-col gap-2">
+                    <label className="cursor-pointer bg-orange-500 hover:bg-orange-600 text-white py-1.5 px-3 rounded text-[11px] font-semibold flex items-center justify-center space-x-1">
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>Upload File</span>
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileChange(e, 'photo')} />
+                    </label>
+                    <span className="text-[10px] text-gray-400 truncate text-center block">
+                      {photoLabel || (lang === 'en' ? 'No file selected' : 'कोई फाइल नहीं चुनी')}
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              <div className="p-4 border rounded-sm border-dashed border-gray-400/20 bg-blue-900/5 dark:bg-slate-900/40 space-y-2">
-                <p className="font-bold text-[11px] uppercase tracking-wider text-slate-500">{lang === 'en' ? "Aadhaar Card Upload" : "आधार कार्ड अपलोड"}</p>
-                <div className="flex items-center space-x-2">
-                  <label className="cursor-pointer bg-slate-700 hover:bg-slate-800 text-white py-1.5 px-3 rounded text-[11px] font-semibold flex items-center space-x-1">
-                    <Upload className="w-3.5 h-3.5" />
-                    <span>Upload PDF</span>
-                    <input type="file" accept=".pdf,image/*" className="hidden" onChange={(e) => handleFileChange(e, 'aadhaar')} />
-                  </label>
-                  <span className="text-[10px] text-gray-400 truncate max-w-[150px]">
-                    {aadhaarLabel || (lang === 'en' ? 'No file selected' : 'कोई फाइल नहीं चुनी')}
-                  </span>
+                <div className="p-4 border rounded-sm border-dashed border-gray-400/20 bg-blue-900/5 dark:bg-slate-900/40 space-y-2">
+                  <p className="font-bold text-[11px] uppercase tracking-wider text-slate-500">{lang === 'en' ? "Aadhaar Card Upload" : "आधार कार्ड अपलोड"}</p>
+                  <div className="flex flex-col gap-2">
+                    <label className="cursor-pointer bg-slate-700 hover:bg-slate-800 text-white py-1.5 px-3 rounded text-[11px] font-semibold flex items-center justify-center space-x-1">
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>Upload PDF</span>
+                      <input type="file" accept=".pdf,image/*" className="hidden" onChange={(e) => handleFileChange(e, 'aadhaar')} />
+                    </label>
+                    <span className="text-[10px] text-gray-400 truncate text-center block">
+                      {aadhaarLabel || (lang === 'en' ? 'No file selected' : 'कोई फाइल नहीं चुनी')}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-4 border rounded-sm border-dashed border-gray-400/20 bg-blue-900/5 dark:bg-slate-900/40 space-y-2">
+                  <p className="font-bold text-[11px] uppercase tracking-wider text-slate-500">{lang === 'en' ? "Academic Marksheet" : "शैक्षणिक मार्कशीट"}</p>
+                  <div className="flex flex-col gap-2">
+                    <label className="cursor-pointer bg-sky-600 hover:bg-sky-700 text-white py-1.5 px-3 rounded text-[11px] font-semibold flex items-center justify-center space-x-1">
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>Upload Marksheet</span>
+                      <input type="file" accept=".pdf,image/*" className="hidden" onChange={(e) => handleFileChange(e, 'marksheet')} />
+                    </label>
+                    <span className="text-[10px] text-gray-400 truncate text-center block">
+                      {marksheetLabel || (lang === 'en' ? 'No file selected' : 'कोई फाइल नहीं चुनी')}
+                    </span>
+                  </div>
                 </div>
               </div>
 

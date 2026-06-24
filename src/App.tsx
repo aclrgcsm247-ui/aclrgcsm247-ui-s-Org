@@ -30,9 +30,10 @@ import {
   INITIAL_STUDENTS,
   INITIAL_BLOGS,
   INITIAL_NOTES,
-  INITIAL_VIDEOS
+  INITIAL_VIDEOS,
+  INITIAL_ATTENDANCE
 } from './data';
-import { Page, Student, Notice, Certificate, Result, StudyNote, VideoLecture } from './types';
+import { Page, Student, Notice, Certificate, Result, StudyNote, VideoLecture, AttendanceRecord } from './types';
 import { 
   loadStudents, 
   loadNotices, 
@@ -93,6 +94,11 @@ export default function App() {
   const [videos, setVideos] = useState<VideoLecture[]>(() => {
     const saved = localStorage.getItem('acl_videos');
     return saved ? JSON.parse(saved) : INITIAL_VIDEOS;
+  });
+
+  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>(() => {
+    const saved = localStorage.getItem('acl_attendance');
+    return saved ? JSON.parse(saved) : INITIAL_ATTENDANCE;
   });
 
   // Authentication states
@@ -219,6 +225,10 @@ export default function App() {
     localStorage.setItem('acl_videos', JSON.stringify(videos));
   }, [videos]);
 
+  useEffect(() => {
+    localStorage.setItem('acl_attendance', JSON.stringify(attendanceRecords));
+  }, [attendanceRecords]);
+
   // Sync logged in structures
   useEffect(() => {
     if (loggedInStudent) {
@@ -321,6 +331,43 @@ export default function App() {
     deleteVideoLecture(id);
   };
 
+  const handleUpdateAttendance = (newRecords: AttendanceRecord[]) => {
+    setAttendanceRecords(prev => {
+      const updated = [...prev];
+      newRecords.forEach(rec => {
+        const idx = updated.findIndex(r => r.studentId === rec.studentId && r.date === rec.date);
+        if (idx > -1) {
+          updated[idx] = rec;
+        } else {
+          updated.push(rec);
+        }
+      });
+
+      // Recalculate attendance percentage
+      const affectedStudentIds = Array.from(new Set(newRecords.map(r => r.studentId)));
+      setStudents(currentStudents => currentStudents.map(stud => {
+        if (affectedStudentIds.includes(stud.id)) {
+          const studentRecs = updated.filter(r => r.studentId === stud.id);
+          const presents = studentRecs.filter(r => r.status === 'present').length;
+          const total = studentRecs.length;
+          const percentage = total > 0 ? Math.round((presents / total) * 100) : 0;
+          
+          const updatedStudent = { ...stud, attendancePercentage: percentage };
+          saveStudent(updatedStudent);
+          
+          if (loggedInStudent && loggedInStudent.id === stud.id) {
+            setLoggedInStudent(updatedStudent);
+          }
+          
+          return updatedStudent;
+        }
+        return stud;
+      }));
+
+      return updated;
+    });
+  };
+
 
   const handleLogout = () => {
     setLoggedInStudent(null);
@@ -410,6 +457,7 @@ export default function App() {
             onUpdateStudent={handleUpdateStudentFields}
             notes={notes}
             videos={videos}
+            attendanceRecords={attendanceRecords}
           />
         );
       case 'admin-dashboard':
@@ -439,6 +487,8 @@ export default function App() {
             onAddVideo={handleAddVideo}
             onUpdateVideo={handleUpdateVideo}
             onDeleteVideo={handleDeleteVideo}
+            attendanceRecords={attendanceRecords}
+            onUpdateAttendance={handleUpdateAttendance}
           />
         );
       case 'supabase-crud':

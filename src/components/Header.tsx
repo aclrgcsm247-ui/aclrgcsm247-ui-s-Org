@@ -70,11 +70,11 @@ export default function Header({
         <div className="flex items-center space-x-6">
           <span className="flex items-center space-x-1 font-sans">
             <MapPin className="w-3.5 h-3.5 text-orange-500" />
-            <span>Kotwali Tiraha, Lucknow Gonda Highway, Colonelganj, Gonda, UP</span>
+            <span>Kotwali Tiraha, Lucknow Gonda Highway, Colonelganj, Gonda, Uttar Pradesh - 271502</span>
           </span>
           <span className="flex items-center space-x-1 font-sans">
             <PhoneCall className="w-3.5 h-3.5 text-orange-500" />
-            <span>+91 99186 66000, 93699 17174</span>
+            <span>+91 99186 66000</span>
           </span>
         </div>
         <div className="flex items-center space-x-4">
@@ -108,7 +108,7 @@ export default function Header({
               Academy of Computer Learning
             </h1>
             <p className="text-[10px] text-orange-600 dark:text-orange-400 font-semibold tracking-widest uppercase mt-0.5">
-              Colonelganj, Gonda • UP
+              Colonelganj • Gonda • UP
             </p>
           </div>
         </div>
@@ -257,7 +257,7 @@ export default function Header({
           <div className="mt-3 p-3 bg-blue-900/10 dark:bg-blue-900/30 rounded-xl border border-blue-500/10">
             <span className="flex items-start space-x-2 text-[11px] text-gray-500 dark:text-gray-400">
               <MapPin className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-              <span>Kotwali Tiraha, Lucknow Gonda Highway, Colonelganj, Gonda, UP - 271521</span>
+              <span>Kotwali Tiraha, Lucknow Gonda Highway, Colonelganj, Gonda, Uttar Pradesh - 271502</span>
             </span>
           </div>
         </div>

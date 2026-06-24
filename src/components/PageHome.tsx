@@ -263,8 +263,8 @@ export default function PageHome({
                 <p className="font-bold text-white uppercase tracking-widest text-[10px]">
                   {lang === 'en' ? 'Direct Lab Helpdesk' : 'डायरेक्ट लैब हेल्पडेस्क'}
                 </p>
-                <p>Lucknow Gonda Highway, Colonelganj, Gonda, UP</p>
-                <p className="font-bold text-white font-mono">+91 99186-66000, 93699-17174</p>
+                <p>Kotwali Tiraha, Lucknow Gonda Highway, Colonelganj, Gonda, Uttar Pradesh - 271502</p>
+                <p className="font-bold text-white font-mono">+91 99186-66000</p>
               </div>
             </div>
 
@@ -504,7 +504,7 @@ export default function PageHome({
                 </div>
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">
-                &quot;My father owns a local trading firm in Colonelganj, Gonda. After learning Tally GST billing workflows and the advanced multi-reporting tools under Alok Sir's guidance, I modernised our firm's ledger and audit workflow myself!&quot;
+                &quot;My father owns a local trading firm in Colonelganj. After learning Tally GST billing workflows and the advanced multi-reporting tools under Alok Sir's guidance, I modernised our firm's ledger and audit workflow myself!&quot;
               </p>
             </div>
           </div>

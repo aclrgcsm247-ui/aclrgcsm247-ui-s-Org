@@ -649,7 +649,7 @@ export function PageContact({ lang, darkMode }: PageContactProps) {
   };
 
   const openWhatsApp = () => {
-    const textQuery = encodeURIComponent(`Hello Academy of Computer Learning, Gonda. I am interested in joining a computer computer. Please schedule me a free demo class.`);
+    const textQuery = encodeURIComponent(`Hello Academy of Computer Learning, Colonelganj. I am interested in joining a computer course. Please schedule me a free demo class.`);
     window.open(`https://wa.me/919918666000?text=${textQuery}`, '_blank');
   };
 
@@ -661,7 +661,7 @@ export function PageContact({ lang, darkMode }: PageContactProps) {
             {lang === 'en' ? 'Information Center' : 'संपर्क केंद्र'}
           </span>
           <h2 className="font-display font-extrabold text-2xl md:text-3xl text-blue-950 dark:text-blue-400">
-            {lang === 'en' ? 'Connect With Our Gonda administrative Desk' : 'एकेडमी से संपर्क करें'}
+            {lang === 'en' ? 'Connect With Our Gonda Administrative Desk' : 'एकेडमी से संपर्क करें'}
           </h2>
         </div>
 
@@ -677,11 +677,11 @@ export function PageContact({ lang, darkMode }: PageContactProps) {
               <div className="space-y-4">
                 <span className="flex items-start space-x-3 text-gray-500 leading-normal">
                   <MapPin className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
-                  <span className="select-all"><b>Address:</b> Kotwali Tiraha, Lucknow Gonda Highway, Colonelganj, Gonda, Uttar Pradesh - 271521</span>
+                  <span className="select-all"><b>Address:</b> Kotwali Tiraha, Lucknow Gonda Highway, Colonelganj, Gonda, Uttar Pradesh - 271502</span>
                 </span>
                 <span className="flex items-center space-x-3 text-gray-500">
                   <Phone className="w-5 h-5 text-orange-500 shrink-0" />
-                  <span className="select-all"><b>Phone:</b> +91 99186 66000, 93699 17174</span>
+                  <span className="select-all"><b>Phone:</b> +91 99186 66000</span>
                 </span>
                 <span className="flex items-center space-x-3 text-gray-500">
                   <Mail className="w-5 h-5 text-orange-500 shrink-0" />
@@ -786,13 +786,13 @@ export function PageContact({ lang, darkMode }: PageContactProps) {
               </form>
             )}
 
-            {/* Embedded maps simulator representing Kotwali Tiraha Gonda */}
+            {/* Embedded maps simulator representing Colonelganj */}
             <div className={`mt-4 p-3 rounded-2xl border text-center font-mono text-[10px] uppercase font-bold text-gray-500 flex flex-col items-center justify-center h-28 border-dashed ${
               darkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
             }`}>
               <MapPin className="w-6 h-6 text-orange-500 mb-1" />
-              <span>Kotwali Tiraha Gonda Lucknow Highway Intersection</span>
-              <span className="text-[9px] text-orange-400 font-sans font-semibold mt-1">27.1351° N, 81.7011° E • Colonelganj Hub</span>
+              <span>Colonelganj Center Office Hub</span>
+              <span className="text-[9px] text-orange-400 font-sans font-semibold mt-1">27.1333° N, 81.7000° E • Colonelganj Center</span>
             </div>
           </div>
 

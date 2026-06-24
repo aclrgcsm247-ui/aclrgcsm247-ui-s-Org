@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Student, Course, Notice, Certificate, Faculty, StudyNote, VideoLecture, Feedback } from '../types';
+import { Student, Course, Notice, Certificate, Faculty, StudyNote, VideoLecture, Feedback, AttendanceRecord } from '../types';
 import { TRANSLATIONS } from '../data';
 import { checkSupabaseStatus, SUPABASE_SQL_SCHEMA, SUPABASE_URL, loadFeedbacks, deleteFeedback } from '../lib/supabase';
 import { 
@@ -22,7 +22,8 @@ import {
   Edit,
   Video,
   FileText,
-  Mail
+  Mail,
+  Calendar
 } from 'lucide-react';
 
 interface DashboardAdminProps {
@@ -50,6 +51,8 @@ interface DashboardAdminProps {
   onAddVideo: (video: VideoLecture) => void;
   onUpdateVideo: (video: VideoLecture) => void;
   onDeleteVideo: (id: string) => void;
+  attendanceRecords?: AttendanceRecord[];
+  onUpdateAttendance?: (records: AttendanceRecord[]) => void;
 }
 
 export default function DashboardAdmin({
@@ -76,7 +79,9 @@ export default function DashboardAdmin({
   onDeleteNote,
   onAddVideo,
   onUpdateVideo,
-  onDeleteVideo
+  onDeleteVideo,
+  attendanceRecords = [],
+  onUpdateAttendance
 }: DashboardAdminProps) {
   const t = TRANSLATIONS[lang];
 
@@ -86,7 +91,51 @@ export default function DashboardAdmin({
   const [loginErr, setLoginErr] = useState(false);
 
   // Active admin module selection
-  const [activeTab, setActiveTab] = useState<'students' | 'notices' | 'certificates' | 'courses' | 'materials' | 'feedbacks'>('students');
+  const [activeTab, setActiveTab] = useState<'students' | 'attendance' | 'notices' | 'certificates' | 'courses' | 'materials' | 'feedbacks'>('students');
+
+  // Attendance tracker states
+  const [attendanceDate, setAttendanceDate] = useState(() => {
+    const today = new Date();
+    const offset = today.getTimezoneOffset();
+    const localToday = new Date(today.getTime() - (offset * 60 * 1000));
+    return localToday.toISOString().split('T')[0];
+  });
+  const [attendanceStates, setAttendanceStates] = useState<Record<string, 'present' | 'absent'>>({});
+
+  useEffect(() => {
+    const approvedStudents = students.filter(s => s.admissionStatus === 'approved');
+    const newState: Record<string, 'present' | 'absent'> = {};
+    
+    approvedStudents.forEach(student => {
+      const existing = attendanceRecords.find(r => r.studentId === student.id && r.date === attendanceDate);
+      if (existing) {
+        newState[student.id] = existing.status;
+      } else {
+        newState[student.id] = 'present';
+      }
+    });
+    setAttendanceStates(newState);
+  }, [attendanceDate, students, attendanceRecords]);
+
+  const handleSaveAttendance = () => {
+    const approvedStudents = students.filter(s => s.admissionStatus === 'approved');
+    const recordsToSave = approvedStudents.map(student => ({
+      id: `att-${student.id}-${attendanceDate}`,
+      studentId: student.id,
+      studentName: student.fullName,
+      date: attendanceDate,
+      status: attendanceStates[student.id] || 'present'
+    }));
+
+    if (onUpdateAttendance) {
+      onUpdateAttendance(recordsToSave);
+      alert(
+        lang === 'en' 
+          ? `Success: Attendance for ${attendanceDate} saved & student percentages recalculated!`
+          : `सफलता: दिनांक ${attendanceDate} की उपस्थिति सहेज ली गई है और छात्र प्रतिशत की पुनर्गणना की गई है!`
+      );
+    }
+  };
 
   // Feedbacks / Contact enquiries states
   const [feedbacksList, setFeedbacksList] = useState<Feedback[]>([]);
@@ -162,6 +211,7 @@ export default function DashboardAdmin({
   const [newStudFather, setNewStudFather] = useState('');
   const [newStudMobile, setNewStudMobile] = useState('');
   const [newStudCourse, setNewStudCourse] = useState('ccc');
+  const [selectedStudentDocs, setSelectedStudentDocs] = useState<Student | null>(null);
 
   // Input states for Add Notice form
   const [showAddNoticeForm, setShowAddNoticeForm] = useState(false);
@@ -215,6 +265,7 @@ export default function DashboardAdmin({
       courseId: newStudCourse,
       passportPhoto: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&auto=format&fit=crop&q=80",
       aadhaarCard: 'Manually Registered',
+      marksheetPhoto: "Marksheet_Not_Uploaded.png",
       admissionDate: new Date().toISOString().split('T')[0],
       admissionStatus: 'approved', // Directly approved by admin
       attendancePercentage: 85,
@@ -408,6 +459,7 @@ export default function DashboardAdmin({
             <div className="flex flex-wrap gap-2 border-b border-gray-400/10 pb-2">
               {[
                 { id: 'students', label: 'Manage Students', icon: <User className="w-3.5 h-3.5" /> },
+                { id: 'attendance', label: 'Mark Attendance', icon: <Calendar className="w-3.5 h-3.5" /> },
                 { id: 'notices', label: 'Bulletin Notices', icon: <BookOpen className="w-3.5 h-3.5" /> },
                 { id: 'certificates', label: 'Generate Certificate', icon: <Award className="w-3.5 h-3.5" /> },
                 { id: 'courses', label: 'Course Catalog fees', icon: <Layers className="w-3.5 h-3.5" /> },
@@ -538,6 +590,14 @@ export default function DashboardAdmin({
                                     </button>
                                   )}
                                   <button
+                                    onClick={() => setSelectedStudentDocs(student)}
+                                    className="p-1 text-sky-500 hover:bg-sky-500/10 rounded"
+                                    title="View Documents"
+                                    id={`view-docs-student-${student.id}`}
+                                  >
+                                    <Eye className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button
                                     onClick={() => {
                                       if (confirm('Verify deleting Student folder permanently?')) {
                                         onDeleteStudent(student.id);
@@ -556,6 +616,328 @@ export default function DashboardAdmin({
                         })}
                       </tbody>
                     </table>
+                  </div>
+
+                  {/* Documents View Modal overlay */}
+                  {selectedStudentDocs && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+                      <div className={`w-full max-w-2xl rounded-2xl border p-6 shadow-2xl space-y-6 ${
+                        darkMode ? 'bg-slate-950 border-slate-900 text-white' : 'bg-white border-slate-200 text-slate-800'
+                      }`}>
+                        {/* Modal Header */}
+                        <div className="flex justify-between items-center border-b border-gray-400/10 pb-3">
+                          <div>
+                            <h3 className="font-display font-extrabold text-base text-blue-900 dark:text-blue-400">
+                              Enclosure Roster & Verified Documents
+                            </h3>
+                            <p className="text-[11px] text-gray-400">
+                              Student: <strong className="text-slate-750 dark:text-slate-200">{selectedStudentDocs.fullName}</strong> • Roll: <span className="font-mono">{selectedStudentDocs.rollNo}</span>
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => setSelectedStudentDocs(null)}
+                            className="text-gray-450 hover:text-red-500 text-xs font-extrabold uppercase font-mono tracking-wider p-2 cursor-pointer"
+                          >
+                            Close ✕
+                          </button>
+                        </div>
+
+                        {/* Modal Content - Documents Showcase Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          
+                          {/* Passport Photo card */}
+                          <div className="space-y-2 text-center">
+                            <span className="font-bold text-[10px] uppercase text-gray-400 tracking-wider block">Passport Photo</span>
+                            <div className="aspect-square bg-slate-900/10 rounded-xl overflow-hidden border border-gray-400/20 flex items-center justify-center max-h-[160px] mx-auto">
+                              <img 
+                                src={selectedStudentDocs.passportPhoto || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&auto=format&fit=crop&q=80"} 
+                                alt="Passport Photo" 
+                                className="object-cover w-full h-full"
+                                referrerPolicy="no-referrer"
+                              />
+                            </div>
+                            <p className="text-[9px] text-gray-400 truncate px-1" title={selectedStudentDocs.passportPhoto}>
+                              Verified Passport Portrait
+                            </p>
+                          </div>
+
+                          {/* Aadhaar Card Card */}
+                          <div className="space-y-2 text-center flex flex-col justify-between">
+                            <div>
+                              <span className="font-bold text-[10px] uppercase text-gray-400 tracking-wider block">Aadhaar Card</span>
+                              <div className="aspect-square bg-slate-900/5 rounded-xl border border-gray-400/20 flex flex-col items-center justify-center p-3 text-center max-h-[160px] mx-auto">
+                                <FileText className="w-10 h-10 text-orange-500 mb-1" />
+                                <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 truncate max-w-full block" title={selectedStudentDocs.aadhaarCard}>
+                                  {selectedStudentDocs.aadhaarCard || 'Aadhaar_Document.pdf'}
+                                </span>
+                              </div>
+                            </div>
+                            <p className="text-[9px] text-gray-400">
+                              Govt ID Verification
+                            </p>
+                          </div>
+
+                          {/* Marksheet Photo card */}
+                          <div className="space-y-2 text-center">
+                            <span className="font-bold text-[10px] uppercase text-gray-400 tracking-wider block">Academic Marksheet</span>
+                            <div className="aspect-square bg-slate-900/5 rounded-xl overflow-hidden border border-gray-400/20 flex items-center justify-center p-1 text-center max-h-[160px] mx-auto">
+                              {selectedStudentDocs.marksheetPhoto && selectedStudentDocs.marksheetPhoto !== 'Marksheet_Not_Uploaded.png' ? (
+                                selectedStudentDocs.marksheetPhoto.startsWith('data:') || selectedStudentDocs.marksheetPhoto.startsWith('http') || selectedStudentDocs.marksheetPhoto.startsWith('blob:') ? (
+                                  <img 
+                                    src={selectedStudentDocs.marksheetPhoto} 
+                                    alt="Academic Marksheet" 
+                                    className="object-contain w-full h-full rounded-lg"
+                                    referrerPolicy="no-referrer"
+                                  />
+                                ) : (
+                                  <div className="flex flex-col items-center justify-center">
+                                    <FileText className="w-10 h-10 text-sky-500 mb-1" />
+                                    <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 truncate max-w-full block" title={selectedStudentDocs.marksheetPhoto}>
+                                      {selectedStudentDocs.marksheetPhoto}
+                                    </span>
+                                  </div>
+                                )
+                              ) : (
+                                <div className="text-gray-400 font-mono text-[10px] leading-tight text-center p-2 flex flex-col items-center justify-center">
+                                  <span className="text-red-500 font-bold mb-1">NOT ATTACHED</span>
+                                  <span>No Marksheet Uploaded</span>
+                                </div>
+                              )}
+                            </div>
+                            <p className="text-[9px] text-gray-400">
+                              10th / 12th Academic Record
+                            </p>
+                          </div>
+
+                        </div>
+
+                        {/* Actions drawer inside modal */}
+                        <div className="pt-4 border-t border-gray-400/10 flex justify-end gap-2.5">
+                          {selectedStudentDocs.marksheetPhoto && selectedStudentDocs.marksheetPhoto !== 'Marksheet_Not_Uploaded.png' && (
+                            <a 
+                              href={selectedStudentDocs.marksheetPhoto} 
+                              download={`${selectedStudentDocs.fullName}_Marksheet`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg text-xs"
+                            >
+                              Download Marksheet
+                            </a>
+                          )}
+                          <button
+                            onClick={() => setSelectedStudentDocs(null)}
+                            className="bg-slate-500/10 hover:bg-slate-500/20 text-gray-400 font-bold py-2 px-4 rounded-lg text-xs"
+                          >
+                            Dismiss
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* MODULE 1.5: ATTENDANCE TRACKER */}
+              {activeTab === 'attendance' && (
+                <div className="space-y-6 animate-fadeIn">
+                  <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-gray-400/10 pb-4">
+                    <div>
+                      <h3 className="font-display font-extrabold text-sm text-blue-900 dark:text-blue-400">
+                        {lang === 'en' ? 'Daily Attendance Sheets' : 'दैनिक छात्र उपस्थिति पत्रक'}
+                      </h3>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {lang === 'en' ? 'Select date and mark daily attendance. Student percentages recalculate in real-time.' : 'दिनांक चुनें और दैनिक उपस्थिति चिह्नित करें। छात्रों का प्रतिशत वास्तविक समय में पुनर्गणित होता है।'}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <label className="text-xs font-bold text-slate-500 font-mono">Date:</label>
+                      <input 
+                        type="date" 
+                        value={attendanceDate}
+                        onChange={(e) => setAttendanceDate(e.target.value)}
+                        className={`p-2 border rounded-xl font-mono text-xs ${
+                          darkMode ? 'bg-slate-900 border-slate-800 text-white' : 'bg-slate-50 border-slate-300 text-black'
+                        }`}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Bulk Select Helpers */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 bg-blue-900/5 dark:bg-blue-950/10 p-3 rounded-xl border border-blue-500/10 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-slate-500">
+                        {lang === 'en' ? 'Quick Actions:' : 'त्वरित कार्रवाई:'}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const approvedStudents = students.filter(s => s.admissionStatus === 'approved');
+                          const updated: Record<string, 'present' | 'absent'> = {};
+                          approvedStudents.forEach(s => { updated[s.id] = 'present'; });
+                          setAttendanceStates(updated);
+                        }}
+                        className="bg-green-500/10 text-green-500 hover:bg-green-500/20 px-2.5 py-1 rounded font-bold transition-all text-[11px]"
+                      >
+                        {lang === 'en' ? 'Mark All Present' : 'सभी को उपस्थित चिह्नित करें'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const approvedStudents = students.filter(s => s.admissionStatus === 'approved');
+                          const updated: Record<string, 'present' | 'absent'> = {};
+                          approvedStudents.forEach(s => { updated[s.id] = 'absent'; });
+                          setAttendanceStates(updated);
+                        }}
+                        className="bg-red-500/10 text-red-500 hover:bg-red-500/20 px-2.5 py-1 rounded font-bold transition-all text-[11px]"
+                      >
+                        {lang === 'en' ? 'Mark All Absent' : 'सभी को अनुपस्थित चिह्नित करें'}
+                      </button>
+                    </div>
+                    
+                    <button
+                      type="button"
+                      onClick={handleSaveAttendance}
+                      className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-1.5 rounded-lg font-bold flex items-center gap-1.5 cursor-pointer shadow border border-orange-400/20 text-[11px]"
+                    >
+                      <CheckCircle className="w-3.5 h-3.5" />
+                      <span>{lang === 'en' ? 'Save and Recalculate' : 'उपस्थिति सुरक्षित करें'}</span>
+                    </button>
+                  </div>
+
+                  {/* Student Grid / List */}
+                  <div className="overflow-x-auto border border-gray-400/10 rounded-xl">
+                    <table className="w-full text-xs text-left">
+                      <thead className={`text-[10px] uppercase font-mono tracking-wider ${darkMode ? 'bg-slate-900 text-slate-400' : 'bg-slate-100 text-slate-500'}`}>
+                        <tr>
+                          <th className="p-3.5">{lang === 'en' ? 'Roll No / Admission ID' : 'रोल नंबर / नामांकन'}</th>
+                          <th className="p-3.5">{lang === 'en' ? 'Student Name' : 'छात्र का नाम'}</th>
+                          <th className="p-3.5">{lang === 'en' ? 'Course Enrolled' : 'पाठ्यक्रम'}</th>
+                          <th className="p-3.5 text-center">{lang === 'en' ? 'Current Attendance' : 'वर्तमान उपस्थिति'}</th>
+                          <th className="p-3.5 text-right">{lang === 'en' ? 'Daily Status' : 'दैनिक स्थिति'}</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-400/10">
+                        {students.filter(s => s.admissionStatus === 'approved').length === 0 ? (
+                          <tr>
+                            <td colSpan={5} className="p-8 text-center text-gray-500">
+                              {lang === 'en' ? 'No approved students found.' : 'कोई स्वीकृत छात्र नहीं मिले।'}
+                            </td>
+                          </tr>
+                        ) : (
+                          students.filter(s => s.admissionStatus === 'approved').map(student => {
+                            const studentCourse = courses.find(c => c.id === student.courseId);
+                            const currentStatus = attendanceStates[student.id] || 'present';
+                            const attPct = student.attendancePercentage;
+                            
+                            return (
+                              <tr key={student.id} className="hover:bg-gray-500/[0.01] transition-colors">
+                                <td className="p-3.5 font-mono">
+                                  <span className="block font-bold text-slate-700 dark:text-slate-200">{student.rollNo}</span>
+                                  <span className="text-[10px] text-gray-400">{student.id}</span>
+                                </td>
+                                <td className="p-3.5 font-bold text-slate-800 dark:text-slate-100">
+                                  {student.fullName}
+                                </td>
+                                <td className="p-3.5">
+                                  <span className="px-2 py-0.5 rounded bg-blue-900/10 dark:bg-blue-900/30 text-blue-500 font-bold font-mono text-[10px]">
+                                    {studentCourse ? studentCourse.code : student.courseId}
+                                  </span>
+                                </td>
+                                <td className="p-3.5 text-center">
+                                  <span className={`font-mono font-bold text-xs px-2 py-0.5 rounded ${
+                                    attPct >= 75 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'
+                                  }`}>
+                                    {attPct}%
+                                  </span>
+                                </td>
+                                <td className="p-3.5 text-right">
+                                  <div className="inline-flex rounded-lg bg-slate-500/10 p-1">
+                                    <button
+                                      type="button"
+                                      onClick={() => setAttendanceStates(prev => ({ ...prev, [student.id]: 'present' }))}
+                                      className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${
+                                        currentStatus === 'present'
+                                          ? 'bg-green-500 text-white shadow shadow-green-500/20'
+                                          : 'text-gray-400 hover:text-slate-700 dark:hover:text-white'
+                                      }`}
+                                    >
+                                      {lang === 'en' ? 'Present' : 'उपस्थित'}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setAttendanceStates(prev => ({ ...prev, [student.id]: 'absent' }))}
+                                      className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${
+                                        currentStatus === 'absent'
+                                          ? 'bg-red-500 text-white shadow shadow-red-500/20'
+                                          : 'text-gray-400 hover:text-slate-700 dark:hover:text-white'
+                                      }`}
+                                    >
+                                      {lang === 'en' ? 'Absent' : 'अनुपस्थित'}
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Attendance History Summary Board */}
+                  <div className={`p-5 rounded-2xl border ${
+                    darkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-slate-50 border-slate-200'
+                  }`}>
+                    <h4 className="font-display font-bold text-xs text-blue-900 dark:text-blue-400 mb-3 uppercase tracking-wider flex items-center gap-1.5">
+                      <Calendar className="w-4 h-4 text-orange-500" />
+                      <span>{lang === 'en' ? 'Marked Sheets Logs' : 'दर्ज की गई दैनिक उपस्थिति इतिहास'}</span>
+                    </h4>
+
+                    {Object.keys(attendanceRecords).length === 0 ? (
+                      <p className="text-xs text-gray-500 italic">No historical attendance records saved.</p>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        {(() => {
+                          const summary: Record<string, { date: string; present: number; absent: number }> = {};
+                          attendanceRecords.forEach(rec => {
+                            if (!summary[rec.date]) {
+                              summary[rec.date] = { date: rec.date, present: 0, absent: 0 };
+                            }
+                            if (rec.status === 'present') {
+                              summary[rec.date].present++;
+                            } else {
+                              summary[rec.date].absent++;
+                            }
+                          });
+
+                          return Object.values(summary)
+                            .sort((a, b) => b.date.localeCompare(a.date))
+                            .map(grp => (
+                              <div 
+                                key={grp.date} 
+                                onClick={() => setAttendanceDate(grp.date)}
+                                className={`p-3 rounded-xl border cursor-pointer hover:border-orange-500/40 transition-all text-xs text-left flex justify-between items-center ${
+                                  attendanceDate === grp.date 
+                                    ? 'border-orange-500 bg-orange-500/[0.02] shadow shadow-orange-500/5' 
+                                    : 'border-gray-400/10 bg-white dark:bg-slate-950'
+                                }`}
+                              >
+                                <div>
+                                  <p className="font-mono font-bold text-slate-800 dark:text-slate-100">{grp.date}</p>
+                                  <p className="text-[10px] text-gray-400 mt-0.5">
+                                    {lang === 'en' ? 'Students Marked' : 'छात्र उपस्थिति पत्रक'}: {grp.present + grp.absent}
+                                  </p>
+                                </div>
+                                <div className="text-right font-mono text-[10px] space-y-0.5">
+                                  <span className="block text-green-500 font-bold">{grp.present} P</span>
+                                  <span className="block text-red-500 font-bold">{grp.absent} A</span>
+                                </div>
+                              </div>
+                            ));
+                        })()}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -1058,7 +1440,7 @@ export default function DashboardAdmin({
                                   required
                                   value={videoInstructor}
                                   onChange={(e) => setVideoInstructor(e.target.value)}
-                                  placeholder="e.g. Ramesh Shukla"
+                                  placeholder="e.g. Er. Ramesh Chandra Shukla"
                                   className={`w-full p-2.5 rounded-lg border text-xs focus:ring-1 focus:ring-orange-500 ${
                                     darkMode ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-gray-300 text-slate-900'
                                   }`}
